@@ -3,6 +3,8 @@
 --INSERT INTO cust_tbl VALUES('A','2','199')
 ---INSERT INTO cust_tbl VALUES('D','3','300')
 ---INSERT INTO cust_tbl VALUES('D','2','200')
+APPROACH 1: 
+
 with cte as 
 (
 select user_id, month, Field3 as current_val, row_number() over(partition by user_id order by month desc) as r_no
@@ -20,3 +22,35 @@ case when current_val > prev_val then 'yes' else 'no' end as upgraded,
 case when current_val<prev_val then 'yes' else 'no' end as downgraded
  from cte2
 where prev_val is not null 
+
+
+
+APPROACH 2: 
+
+select user_id, upgraded, downgraded from 
+(
+select user_id, 
+month, 
+amount,
+lead(amount, 1,0) over(partition by user_id order by month desc) as prev_val, 
+case when (amount - lead(amount, 1,0) over(partition by user_id order by month desc))>0 then 'yes' else 'no' end as upgraded,
+case when (amount - lead(amount, 1,0) over(partition by user_id order by month desc))<0 then 'yes' else 'no' end as downgraded,
+dense_rank() over(partition by user_id order by month desc) as r_no
+ from customer_tbl
+ ) as a
+ group by user_id 
+ 
+ 
+ APPROACH 3: 
+ 
+ select user_id, upgraded, downgraded from 
+(
+select user_id, 
+month, 
+amount,
+lead(amount, 1,0) over(partition by user_id order by month desc) as prev_val, 
+case when (amount - lead(amount, 1,0) over(partition by user_id order by month desc))>0 then 'yes' else 'no' end as upgraded,
+case when (amount - lead(amount, 1,0) over(partition by user_id order by month desc))<0 then 'yes' else 'no' end as downgraded,
+dense_rank() over(partition by user_id order by month desc) as r_no
+ from customer_tbl
+ ) as a where r_no = 1 
