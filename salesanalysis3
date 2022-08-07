@@ -1,0 +1,21 @@
+Question context: https://leetcode.com/problems/sales-analysis-iii/
+
+
+
+--INSERT INTO products values('1','S8')
+--INSERT INTO products values('2','G4')
+--INSERT INTO products values('3','Iphone')
+
+--INSERT INTO sales values('1','2019-01-21')
+--INSERT INTO sales values('2','2019-02-17')
+--INSERT INTO sales values('2','2019-06-02')
+--INSERT INTO sales values('3','2019-05-13')
+
+
+
+select p.product_id
+ from sales as s 
+inner join products as p
+on s.product_id = p.product_id
+group by p.product_id
+having min(date) >= '2019-01-01' and max(date) <= '2019-03-31'
