@@ -1,0 +1,23 @@
+Ratio: The ratio of a product is calculated as the total sales price in a particular year divide by the total sales price across all years(partition by productnames)
+
+Oracle: RATIO_TO_REPORT(Quantity*Price) OVER(PARTITION BY PRODUCT_NAME) SALES_RATIO
+
+select 
+p.PRODUCT_NAME,
+s.YEAR,
+s.Quantity*price as amount, 
+sum(s.Quantity*s.price) over(partition by p.PRODUCT_NAME) total_product_value,
+round(cast(s.Quantity*price as float) / sum(s.Quantity*s.price) over(partition by p.PRODUCT_NAME),2) as sales_ratio
+from 
+products p 
+inner join sales s 
+on p.PRODUCT_ID = s.PRODUCT_ID
+
+
+Output:
+PRODUCT_NAME YEAR  RATIO
+Iphone       2011. 0.333
+Iphone.      2012. 0.444
+Iphone.      2010. 0.222
+Nokia.       2012. 0.1632
+Nokia.       2011. 0.3265
