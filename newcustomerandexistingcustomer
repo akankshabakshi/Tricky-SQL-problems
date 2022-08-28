@@ -1,0 +1,33 @@
+/*
+INSERT INTO orders VALUES
+('1', '100', '01-01-2022', '2000'),
+('2', '200', '01-01-2022', '2500'),
+('3', '300', '01-01-2022', '2100'),
+('4', '100', '02-01-2022', '2000'),
+('5', '400', '02-01-2022', '2200'),
+('6', '500', '02-01-2022','2700'),
+('7','100', '03-01-2022', '3000'),
+('8', '400', '03-01-2022', '1000'),
+('9', '600', '03-01-2022', '3000')
+*/
+
+Solution:
+
+with cte as 
+(select *,
+dense_rank() over(partition by customerid order by orderdate) as r_no 
+ from orders
+ )
+ select orderdate, 
+ count(case when r_no = 1 then customerid else null end) as number_of_new_customers,
+ count(case when r_no  > 1 then customerid else null end) as number_of_existing_customers
+ from cte
+ group by orderdate
+ 
+ 
+ Output: 
+ 
+ order_date.  number of new customers.  number of existing customers 
+ 01-01-2022     3                          0 
+ 02-01-2022     2                          1
+ 03-01-2022     1                          2
